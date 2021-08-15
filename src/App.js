@@ -1,11 +1,15 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
+import Header from './components/header/Header';
 
 function App() {
   return (
-    <div className="App">
-      <h1>Setup React Redux</h1>
-    </div>
+    <>
+      <Header />
+      <div className="App">
+        <h1>Setup React Redux</h1>
+      </div>
+    </>
   );
 }
 
