@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Paginate from '../../paginate/Paginate';
 import Slideshow from '../slideshow/Slideshow';
 import './MainContent.scss';
 
@@ -14,12 +15,24 @@ const MainContent = () => {
       url: 'https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
     }
   ];
+  const [current, setCurrent] = useState(1);
+
+  const paginate = (type) => {
+    if (type === 'prev' && current >= 1) {
+      setCurrent(current - 1);
+    } else {
+      setCurrent(current + 1);
+    }
+  };
+
   return (
     <div className="main-content">
       <Slideshow images={images} auto={true} showArrows={false} />
       <div className="grid-movie-title">
         <div className="movieType">Now Playing</div>
-        <div className="paginate">Paginate</div>
+        <div className="paginate">
+          <Paginate current={current} total={10} paginate={paginate} />
+        </div>
       </div>
     </div>
   );
