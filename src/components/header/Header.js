@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Header.scss';
 import logo from '../../assets/images/logo.svg';
+import { fetchMovies, setMovieType } from '../../store/actions/movies';
+import { useDispatch } from 'react-redux';
 
 const HEADER_LIST = [
   {
@@ -30,8 +32,14 @@ const HEADER_LIST = [
 ];
 
 const Header = () => {
+  const dispatch = useDispatch();
   const [navClass, setNavClass] = useState(false);
   const [menuClass, setMenuClass] = useState(false);
+  const [type, setType] = useState('now_playing');
+
+  useEffect(() => {
+    dispatch(fetchMovies(type, 1));
+  }, [type]);
 
   const toggleMenu = () => {
     setMenuClass(!menuClass);
@@ -40,6 +48,13 @@ const Header = () => {
       document.body.classList.add('header-nav-open');
     } else {
       document.body.classList.remove('header-nav-open');
+    }
+  };
+
+  const setMovieTypeUrl = (name, movieType) => {
+    if (type !== movieType) {
+      dispatch(setMovieType(movieType, name));
+      setType(movieType);
     }
   };
 
@@ -62,7 +77,16 @@ const Header = () => {
           </div>
           <ul className={'header-nav' + (navClass ? ' header-mobile-nav' : '')}>
             {HEADER_LIST.map((item) => (
-              <li className="header-nav-item" key={item.id}>
+              <li
+                className={
+                  'header-nav-item' + (type === item.type ? ' active-item' : '')
+                }
+                key={item.id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMovieTypeUrl(item.name, item.type);
+                }}
+              >
                 <span className="header-list-name">
                   <i className={item.iconClass}></i>
                 </span>
