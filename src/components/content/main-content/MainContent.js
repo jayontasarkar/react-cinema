@@ -1,56 +1,57 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchMovies,
+  setResponsePageNumber
+} from '../../../store/actions/movies';
+import { getRandomMovies } from '../../../store/reducers/movies';
 import Paginate from '../../paginate/Paginate';
 import Grid from '../grid/Grid';
 import Slideshow from '../slideshow/Slideshow';
 import './MainContent.scss';
 
 const MainContent = () => {
-  const images = [
-    {
-      rating: 7.5,
-      url: 'https://images.pexels.com/photos/688574/pexels-photo-688574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    },
-    {
-      rating: 6.5,
-      url: 'https://images.pexels.com/photos/776653/pexels-photo-776653.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    },
-    {
-      rating: 9.5,
-      url: 'https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    },
-    {
-      rating: 7.5,
-      url: 'https://images.pexels.com/photos/688574/pexels-photo-688574.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    },
-    {
-      rating: 9.5,
-      url: 'https://images.pexels.com/photos/776653/pexels-photo-776653.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    },
-    {
-      rating: 7,
-      url: 'https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
-    }
-  ];
-  const [current, setCurrent] = useState(1);
+  const dispatch = useDispatch();
+  const { loading, movieType, movieTypeTitle, totalPages, page } = useSelector(
+    (state) => state.movies
+  );
+  const [current, setCurrent] = useState(page);
+  const images = useSelector(getRandomMovies);
 
   const paginate = (type) => {
+    let pageNumber = current;
     if (type === 'prev' && current >= 1) {
-      setCurrent(current - 1);
+      pageNumber -= 1;
     } else {
-      setCurrent(current + 1);
+      pageNumber += 1;
     }
+    setCurrent(pageNumber);
+    dispatch(setResponsePageNumber(pageNumber, totalPages));
+    dispatch(fetchMovies(movieType, pageNumber, false));
   };
 
   return (
     <div className="main-content">
-      <Slideshow images={images} auto={true} showArrows={false} />
-      <div className="grid-movie-title">
-        <div className="movieType">Now Playing</div>
-        <div className="paginate">
-          <Paginate current={current} total={10} paginate={paginate} />
-        </div>
-      </div>
-      <Grid images={images} />
+      {loading ? (
+        <p>Loading...</p>
+      ) : images && images.length ? (
+        <>
+          <Slideshow images={images} auto={true} showArrows={false} />
+          <div className="grid-movie-title">
+            <div className="movieType">{movieTypeTitle}</div>
+            <div className="paginate">
+              <Paginate
+                current={current}
+                total={totalPages}
+                paginate={paginate}
+              />
+            </div>
+          </div>
+          <Grid images={images} />
+        </>
+      ) : (
+        <p>No movies found</p>
+      )}
     </div>
   );
 };
